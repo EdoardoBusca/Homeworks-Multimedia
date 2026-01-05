@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Game</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            margin-top: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        #board {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background-color: white;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        #inputArea {
+            margin-bottom: 10px;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        #newGameBtn {
+            display: none;
+            background-color: green;
+            margin-top: 10px;
+        }
+
+        .green {
+            background-color: #6aaa64;
+            color: white;
+            border-color: #6aaa64;
+        }
+
+        .yellow {
+            background-color: #c9b458;
+            color: white;
+            border-color: #c9b458;
+        }
+
+        .red {
+            background-color: #787c7e;
+            color: white;
+            border-color: #787c7e;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Word Guessing Game</h1>
+
+    <div id="board"></div>
+
+    <div id="inputArea">
+        <input type="text" id="guessInput" maxlength="5" placeholder="5 letters">
+        <button id="guessButton">Guess</button>
+    </div>
+
+    <button id="newGameBtn">New Game</button>
+
+<script>
+window.onload = function () {
+    let board = document.getElementById('board');
+    let guessButton = document.getElementById('guessButton');
+    let guessInput = document.getElementById('guessInput');
+    let newGameBtn = document.getElementById('newGameBtn');
+
+    let possibleWords = ["table", "chair", "piano", "mouse", "house", "plant", "brain", "cloud", "beach", "fruit"];
+    
+    let randomIndex = Math.floor(Math.random() * possibleWords.length);
+    let word = possibleWords[randomIndex];
+    
+    let tries = 0;
+    let gameOver = false;
+
+    for (let i = 0; i < 6; i++) {
+        let row = document.createElement('div');
+        row.classList.add('row');
+        board.append(row);
+
+        for (let j = 0; j < 5; j++) {
+            let cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.setAttribute('data-row', i);
+            cell.setAttribute('data-column', j);
+            row.append(cell);
+        }
+    }
+
+    guessInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            guessButton.click();
+        }
+    });
+
+    newGameBtn.addEventListener('click', function() {
+        location.reload();
+    });
+
+    guessButton.addEventListener('click', function () {
+        if (gameOver == true) {
+            alert("Game is already over");
+            return;
+        }
+
+        let guess = guessInput.value.toLowerCase();
+
+        if (guess.length != 5) {
+            alert("Please enter exactly 5 letters");
+            return;
+        }
+
+        let wordArr = word.split('');
+        let guessArr = guess.split('');
+        let colors = ['red', 'red', 'red', 'red', 'red'];
+
+        for (let i = 0; i < 5; i++) {
+            if (guessArr[i] == wordArr[i]) {
+                colors[i] = 'green';
+                wordArr[i] = null;
+                guessArr[i] = null;
+            }
+        }
+
+        for (let i = 0; i < 5; i++) {
+            if (guessArr[i] != null) {
+                let index = wordArr.indexOf(guessArr[i]);
+                if (index > -1) {
+                    colors[i] = 'yellow';
+                    wordArr[index] = null;
+                }
+            }
+        }
+
+        for (let i = 0; i < 5; i++) {
+            let currentCell = document.querySelector(
+                `[data-row="${tries}"][data-column="${i}"]`
+            );
+            currentCell.innerText = guess[i];
+            currentCell.classList.add(colors[i]);
+        }
+
+        if (word == guess) {
+            setTimeout(function() {
+                alert("You won!");
+            }, 100);
+            gameOver = true;
+            newGameBtn.style.display = 'block';
+            return;
+        }
+
+        if (tries == 5) {
+            setTimeout(function() {
+                alert("You lost! The word was: " + word.toUpperCase());
+            }, 100);
+            gameOver = true;
+            newGameBtn.style.display = 'block';
+            return;
+        }
+
+        tries++;
+        guessInput.value = '';
+    })
+}
+</script>
+</body>
+</html>
